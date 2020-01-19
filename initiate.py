@@ -3,37 +3,40 @@ import os
 import atexit
 import sys
 
+
 db_exist = os.path.isfile('moncafe.db')  # define databise
 if db_exist:
     os.remove('moncafe.db')  # delete database if exist
 
 dbcon = _sqlite3.connect('moncafe.db')
-cursor = dbcon.cursor()
+with dbcon:
+    cursor = dbcon.cursor()
 
-
-# def close_db():
-#     dbcon.connect()
-#     dbcon.close()
-#     os.remove('moncafe.db')
-
-
-# atexit.register(close_db)
 
 
 def inserttodb(line):
-    splited = line.split(", ")
+    splited = line.split(",")
     what = splited[0]
-    if what == 'C':  # coffee stand
-        cursor.execute("INSERT INTO Coffee_stands values(?,?,?)", splited[1:])  # insert to Coffee stand
+    with dbcon:
+        cursor = dbcon.cursor()
+        if what == 'C':  # coffee stand
+            converted = (int(splited[1]), splited[2], int(splited[3]))
+            cursor.execute("INSERT INTO Coffee_stands values(?,?,?)", converted[0:])  # insert to Coffee stand
 
-    if what == 'S':  # Suppliers
-        cursor.execute("INSERT INTO Suppliers values(?,?,?)", splited[1:])  # insert to Coffee stand
+        if what == 'S':  # Suppliers
+            converted = (int(splited[1]), splited[2], splited[3])
+            cursor.execute("INSERT INTO Suppliers values(?,?,?)", converted[0:])  # insert to Coffee stand
 
-    if what == 'E':  # Employees
-        cursor.execute("INSERT INTO Employees values(?,?,?,?)", splited[1:])  # insert to Coffee stand
+        if what == 'E':  # Employees
+            converted = (int(splited[1]), splited[2], splited[3], int(splited[4]))
+            cursor.execute("INSERT INTO Employees values(?,?,?,?)", converted[0:])  # insert to Coffee stand
 
-    if what == 'P':  # Products
-        cursor.execute("INSERT INTO Products values(?,?,?,?)", splited[1:])  # insert to Coffee stand
+        if what == 'P':  # Products
+            quantity = 0
+            if len(splited) == 5:
+                quantity = int(splited[4])
+            converted = (int(splited[1].strip()), splited[2].strip(), float(splited[3].strip()), quantity)
+            cursor.execute("""INSERT INTO Products VALUES(?,?,?,?)""", converted[0:])  # insert to Coffee stand
 
 
 def createtables():
@@ -51,7 +54,7 @@ def createtables():
                                             coffee_stand INTEGER REFERENCES Coffee_stand(id))""")
 
     cursor.execute("""CREATE TABLE Products(id INTEGER PRIMARY KEY,
-                                               desctiption TEXT NOT NULL,
+                                               description TEXT NOT NULL,
                                                price REAL NOT NULL,
                                                quantity INTEGER NOT NULL)""")
 
@@ -63,10 +66,10 @@ def createtables():
 
 def main(args):
     createtables()
-    config = args[0]
-    with open(config) as inputfile:
+    config = args[1]
+    with open(config, "r") as inputfile:
         for line in inputfile:
-            inserttodb(line)
+            inserttodb(line.strip())
 
 
 if __name__ == '__main__':
