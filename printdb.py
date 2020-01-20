@@ -1,7 +1,7 @@
 import _sqlite3
 import sys
 
-if __name__ == '__main__':
+def main():
     dbcon = _sqlite3.connect('moncafe.db')
     cur = dbcon.cursor()
 
@@ -58,10 +58,20 @@ if __name__ == '__main__':
 
     cur.execute("""
         SELECT
-        Employees.name as name, Employees.salary as salary,
-        Coffee_stands.location as location,
-        Activities.quantity as num
+        Employees.name, Employees.salary, 
+        Coffee_stands.location
         FROM
         Employees
-        LEFT JOIN Employees.coffee_stand = Coffee_stands.id
-        LEFT JOIN Employees.id = Activities.activator_id""")
+        LEFT JOIN  Coffee_stands ON Employees.coffee_stand = Coffee_stands.id
+        """)
+        #FROM
+
+        #Activities
+        #JOIN Employees.id=Activities.activator_id""")
+
+    for row in cur.fetchall():
+        print(row)
+
+
+if __name__ == '__main__':
+    main()
