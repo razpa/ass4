@@ -1,5 +1,6 @@
 import _sqlite3
 import sys
+from persistence import *
 
 def main():
     dbcon = _sqlite3.connect('moncafe.db')
