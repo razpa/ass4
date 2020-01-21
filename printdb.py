@@ -70,14 +70,14 @@ def main():
     print("\n" + "Activities")
     cur.execute("""
         SELECT
-        Activities.date, Products.description, Products.quantity, Employees.name, Suppliers.name
+        Activities.date, Products.description, Activities.quantity, Employees.name, Suppliers.name
         FROM Activities 
             INNER JOIN Products
                 ON Activities.product_id = Products.id
             LEFT JOIN Employees
-                ON Activities.activator_id = Employees.name
+                ON Activities.activator_id = Employees.id
             LEFT JOIN Suppliers
-                ON Activities.activator_id = Suppliers.name
+                ON Activities.activator_id = Suppliers.id
         ORDER BY Activities.date ASC
         """)
     for row in cur.fetchall():
