@@ -1,10 +1,11 @@
 import _sqlite3
 import sys
-from persistence import *
+from persistence import repo
 
 def main():
     dbcon = _sqlite3.connect('moncafe.db')
     cur = dbcon.cursor()
+    cur2 = dbcon.cursor()
 
     # ------ Print Tables ---------
     # print Activities
@@ -48,28 +49,37 @@ def main():
         print(row)
 
     # ------ Print Employees Report ---------
-    print("Employees report")
-    # cur.execute("""
-    #     SELECT emp.name, emp.salary, cs.location act.quantity
-    #     FROM Employees as amp
-    #     JOIN Coffee_stands as cs
-    #     on emp.coffee_stand = cs.id
-    #     JOIN Activities as act
-    #     on emp.id = act.activator_id""")
-
+    print("\n" + "Employees report")
     cur.execute("""
         SELECT
-        Employees.name, Employees.salary, 
+        Employees.id, Employees.name, Employees.salary, 
         Coffee_stands.location
-        FROM
-        Employees
-        LEFT JOIN  Coffee_stands ON Employees.coffee_stand = Coffee_stands.id
+        FROM Employees 
+        JOIN Coffee_stands 
+        ON Employees.coffee_stand = Coffee_stands.id
+        ORDER BY Employees.name ASC
         """)
-        #FROM
 
-        #Activities
-        #JOIN Employees.id=Activities.activator_id""")
+    for row in cur.fetchall():
+        sum = 0
+        for i in repo.Activities.find(row[0]):
+            sum +=repo.Products.find(i.product_id).price
+        print(*row[1:], sum)
 
+    # ------ Print Actvity Report ---------
+    print("\n" + "Activities")
+    cur.execute("""
+        SELECT
+        Activities.date, Products.description, Products.quantity, Employees.name, Suppliers.name
+        FROM Activities 
+            INNER JOIN Products
+                ON Activities.product_id = Products.id
+            LEFT JOIN Employees
+                ON Activities.activator_id = Employees.name
+            LEFT JOIN Suppliers
+                ON Activities.activator_id = Suppliers.name
+        ORDER BY Activities.date ASC
+        """)
     for row in cur.fetchall():
         print(row)
 
