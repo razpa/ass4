@@ -117,7 +117,7 @@ class _Coffee_stands:
     def find(self, id):
         c = self._conn.cursor()
         c.execute("""
-            SELECT * FROM Coffee_stands WHERE id = >
+            SELECT * FROM Coffee_stands WHERE id = ?
             """, [id])
         return Coffee_stands(*c.fetchone())
 
@@ -135,7 +135,7 @@ class _Activities:
     def find(self, activitor_id):
         c = self._conn.cursor()
         all = c.execute("""
-            SELECT * FROM Activities WHERE activitor_id = >
+            SELECT * FROM Activities WHERE activator_id = ?
             """, [activitor_id])
         return [Activities(*row) for row in all]
 
